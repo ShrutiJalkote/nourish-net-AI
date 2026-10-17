@@ -1,0 +1,221 @@
+@import "tailwindcss";
+@import "leaflet/dist/leaflet.css";
+
+@layer base {
+  :root {
+    --bg-canvas: #F8FAFC;
+    --bg-card: #FFFFFF;
+    --text-primary: #0F172A;
+    --text-muted: #475569;
+    --border-hairline: #E2E8F0;
+    --accent-indigo: #4F46E5;
+    --accent-cyan: #06B6D4;
+    --accent-emerald: #10B981;
+    --accent-rose: #F43F5E;
+    --accent-amber: #F59E0B;
+    --accent-purple: #8B5CF6;
+  }
+
+  body {
+    background-color: #F8FAFC;
+    color: #0F172A;
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    margin: 0;
+    min-height: 100vh;
+    background-image: 
+      radial-gradient(at 0% 0%, rgba(79, 70, 229, 0.05) 0px, transparent 50%),
+      radial-gradient(at 100% 0%, rgba(6, 182, 212, 0.05) 0px, transparent 40%),
+      radial-gradient(at 50% 100%, rgba(244, 63, 94, 0.03) 0px, transparent 50%),
+      radial-gradient(rgba(15, 23, 42, 0.02) 1px, transparent 1px);
+    background-size: 100% 100%, 100% 100%, 100% 100%, 24px 24px;
+  }
+
+  code, pre, .font-mono {
+    font-family: 'JetBrains Mono', monospace;
+  }
+}
+
+/* Custom Sleek Light Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #F1F5F9;
+}
+::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+  border-radius: 9999px;
+  border: 1px solid #E2E8F0;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94A3B8;
+}
+
+/* Light Theme Surface Classes */
+.light-panel {
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.02);
+}
+
+.light-card {
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.light-card:hover {
+  border-color: #CBD5E1;
+  box-shadow: 0 6px 24px -4px rgba(15, 23, 42, 0.08), 0 2px 6px -1px rgba(15, 23, 42, 0.04);
+  transform: translateY(-1px);
+}
+
+/* High-Impact Accent Buttons */
+.indigo-gradient-btn {
+  background: linear-gradient(135deg, #4F46E5 0%, #4338CA 100%);
+  color: #FFFFFF;
+  box-shadow: 0 2px 10px 0 rgba(79, 70, 229, 0.28);
+  transition: all 0.2s ease;
+}
+
+.indigo-gradient-btn:hover {
+  box-shadow: 0 4px 16px 0 rgba(79, 70, 229, 0.4);
+  transform: translateY(-1px);
+}
+
+/* Colorful Badges */
+.badge-indigo {
+  background: #EEF2FF;
+  color: #4338CA;
+  border: 1px solid #C7D2FE;
+}
+
+.badge-cyan {
+  background: #ECFEFF;
+  color: #0E7490;
+  border: 1px solid #A5F3FC;
+}
+
+.badge-emerald {
+  background: #ECFDF5;
+  color: #047857;
+  border: 1px solid #A7F3D0;
+}
+
+.badge-amber {
+  background: #FFFBEB;
+  color: #B45309;
+  border: 1px solid #FDE68A;
+}
+
+.badge-rose {
+  background: #FFF1F2;
+  color: #BE123C;
+  border: 1px solid #FECDD3;
+}
+
+.badge-purple {
+  background: #FAF5FF;
+  color: #7E22CE;
+  border: 1px solid #E9D5FF;
+}
+
+.badge-sky {
+  background: #F0F9FF;
+  color: #0369A1;
+  border: 1px solid #BAE6FD;
+}
+
+.badge-orange {
+  background: #FFF7ED;
+  color: #C2410C;
+  border: 1px solid #FFEDD5;
+}
+
+/* Food Category Color Tags */
+.food-tag-cooked {
+  background: #FFF7ED;
+  color: #C2410C;
+  border: 1px solid #FDBA74;
+}
+
+.food-tag-dairy {
+  background: #F0F9FF;
+  color: #0369A1;
+  border: 1px solid #7DD3FC;
+}
+
+.food-tag-greens {
+  background: #ECFDF5;
+  color: #047857;
+  border: 1px solid #6EE7B7;
+}
+
+.food-tag-bakery {
+  background: #FEFCE8;
+  color: #A16207;
+  border: 1px solid #FDE047;
+}
+
+.food-tag-fruits {
+  background: #FFF1F2;
+  color: #BE123C;
+  border: 1px solid #FDA4AF;
+}
+
+.food-tag-frozen {
+  background: #F5F3FF;
+  color: #6D28D9;
+  border: 1px solid #C4B5FD;
+}
+
+/* CRITICAL FIX: Leaflet Map Isolation to never overlap Navbar */
+.map-isolate-container {
+  isolation: isolate;
+  position: relative;
+  z-index: 1;
+}
+
+.leaflet-container {
+  background: #F8FAFC !important;
+  font-family: inherit !important;
+  border-radius: 1rem;
+  isolation: isolate;
+  z-index: 1 !important;
+}
+
+.leaflet-top,
+.leaflet-bottom {
+  z-index: 20 !important;
+}
+
+.leaflet-pane {
+  z-index: 10 !important;
+}
+
+.leaflet-popup-pane {
+  z-index: 30 !important;
+}
+
+.leaflet-popup-content-wrapper {
+  background: #FFFFFF !important;
+  color: #0F172A !important;
+  border: 1px solid #E2E8F0 !important;
+  border-radius: 0.75rem !important;
+  box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.12), 0 8px 10px -6px rgba(15, 23, 42, 0.06) !important;
+}
+
+.leaflet-popup-tip {
+  background: #FFFFFF !important;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.25s ease-out forwards;
+}

@@ -1,0 +1,72 @@
+[
+  {
+    "donor_name": "Taj Hotel Mumbai",
+    "donor_type": "hotel",
+    "latitude": 18.9217,
+    "longitude": 72.8332,
+    "contact_phone": "+91-22-66651234"
+  },
+  {
+    "donor_name": "ITC Grand Delhi",
+    "donor_type": "hotel",
+    "latitude": 28.5925,
+    "longitude": 77.1712,
+    "contact_phone": "+91-11-26001234"
+  },
+  {
+    "donor_name": "Barbeque Nation Bangalore",
+    "donor_type": "restaurant",
+    "latitude": 12.9780,
+    "longitude": 77.6408,
+    "contact_phone": "+91-80-44551234"
+  },
+  {
+    "donor_name": "Big Bazaar Hyderabad",
+    "donor_type": "supermarket",
+    "latitude": 17.4326,
+    "longitude": 78.4071,
+    "contact_phone": "+91-40-33441234"
+  },
+  {
+    "donor_name": "Saravana Bhavan Chennai",
+    "donor_type": "restaurant",
+    "latitude": 13.0418,
+    "longitude": 80.2341,
+    "contact_phone": "+91-44-28551234"
+  },
+  {
+    "donor_name": "Star Caterers Kolkata",
+    "donor_type": "caterer",
+    "latitude": 22.5480,
+    "longitude": 88.3416,
+    "contact_phone": "+91-33-24561234"
+  },
+  {
+    "donor_name": "Royal Wedding Hall Pune",
+    "donor_type": "wedding_hall",
+    "latitude": 18.5074,
+    "longitude": 73.8077,
+    "contact_phone": "+91-20-41231234"
+  },
+  {
+    "donor_name": "Spencer's Retail Ahmedabad",
+    "donor_type": "supermarket",
+    "latitude": 23.0395,
+    "longitude": 72.5660,
+    "contact_phone": "+91-79-26781234"
+  },
+  {
+    "donor_name": "Paradise Biryani Hyderabad",
+    "donor_type": "restaurant",
+    "latitude": 17.4434,
+    "longitude": 78.4810,
+    "contact_phone": "+91-40-66551234"
+  },
+  {
+    "donor_name": "Reliance Fresh Bangalore",
+    "donor_type": "supermarket",
+    "latitude": 12.9352,
+    "longitude": 77.6245,
+    "contact_phone": "+91-80-22331234"
+  }
+]

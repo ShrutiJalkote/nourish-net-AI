@@ -1,0 +1,9 @@
+[
+  {"category": "cooked_hot_meals", "display_name": "Cooked Hot Meals", "t0_hours": 4.0, "k_decay": 0.18, "t_base_celsius": 60, "notes": "Must stay above 60°C or below 5°C"},
+  {"category": "fresh_dairy", "display_name": "Fresh Dairy", "t0_hours": 6.0, "k_decay": 0.22, "t_base_celsius": 4, "notes": "Rapid degradation above 10°C"},
+  {"category": "leafy_greens", "display_name": "Leafy Greens / Salads", "t0_hours": 3.0, "k_decay": 0.25, "t_base_celsius": 4, "notes": "Most perishable category"},
+  {"category": "bakery_bread", "display_name": "Bakery / Bread", "t0_hours": 24.0, "k_decay": 0.08, "t_base_celsius": 22, "notes": "Slow degradation; mold-driven"},
+  {"category": "canned_packaged", "display_name": "Canned / Packaged", "t0_hours": 720.0, "k_decay": 0.01, "t_base_celsius": 22, "notes": "Shelf-stable baseline"},
+  {"category": "fruits", "display_name": "Fruits", "t0_hours": 12.0, "k_decay": 0.12, "t_base_celsius": 8, "notes": "Ethylene-sensitive"},
+  {"category": "frozen_items", "display_name": "Frozen Items", "t0_hours": 168.0, "k_decay": 0.03, "t_base_celsius": -18, "notes": "Only degrades if thaw chain broken"}
+]

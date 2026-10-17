@@ -1,0 +1,49 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+build/
+.eggs/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Environment variables
+.env
+.env.local
+
+# Database & runtime data
+data/*.db*
+data/*.sqlite*
+*.db*
+*.sqlite*
+!data/.gitkeep
+
+# Test code & caches (Excluded per project instructions)
+tests/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Transcripts & system logs
+transcripts/
+*.log
+
+# Node dependencies
+node_modules/
+frontend/node_modules/
+
+# IDE & OS
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Streamlit secrets
+.streamlit/secrets.toml
