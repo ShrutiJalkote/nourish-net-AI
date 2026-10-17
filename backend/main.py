@@ -297,8 +297,9 @@ async def execute_match(body: MatchRequest):
     if not donations:
         return {"matches": [], "elapsed_ms": 0, "message": "No active donations to match."}
 
-    # Run matching engine
-    match_results = matcher_engine.solve_optimal_matching(donations, ngos)
+    # Run matching engine (sub-15ms Hungarian optimization; road routes enriched for single matches or on-demand)
+    fetch_road = bool(body.donation_id)
+    match_results = matcher_engine.solve_optimal_matching(donations, ngos, fetch_road_routes=fetch_road)
 
     # Enrich with SHAP explanations and store
     stored_matches = []
@@ -369,6 +370,31 @@ async def explain_match(match_id: int):
         "match_id": match_id,
         "waterfall_plot_base64": plot_b64,
     }
+
+
+@app.get("/api/match/{match_id}/route")
+async def get_match_route(match_id: int):
+    match = db.get_match(match_id)
+    if not match:
+        raise HTTPException(404, f"Match #{match_id} not found")
+
+    don = db.get_donation(match.get("donation_id"))
+    ngo = db.get_ngo(match.get("ngo_id"))
+    if not don or not ngo:
+        return {"geometry": match.get("route_geometry"), "mode": match.get("routing_mode")}
+
+    road = matcher_engine.fetch_road_route(
+        don["latitude"], don["longitude"], ngo["latitude"], ngo["longitude"]
+    )
+    if road:
+        db.update_match(match_id, {
+            "distance_km": road["distance_km"],
+            "eta_minutes": road["eta_minutes"],
+            "route_geometry": road["geometry"],
+            "routing_mode": road["mode"],
+        })
+        return road
+    return {"geometry": match.get("route_geometry"), "mode": match.get("routing_mode")}
 
 
 # ═══════════════════════════════════════════════════════════════════════════

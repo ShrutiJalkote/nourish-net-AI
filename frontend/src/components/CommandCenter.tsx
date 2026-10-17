@@ -366,8 +366,15 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({
                             <ArrowRight className="w-3.5 h-3.5 text-indigo-600" />
                             <span className="text-emerald-700">{m.ngo_name}</span>
                           </div>
-                          <div className="text-[11px] text-[#475569] capitalize mt-0.5">
-                            {m.quantity_kg} kg {m.food_category.replace('_', ' ')} • <span className="text-[#0F172A] font-mono font-semibold">{m.distance_km.toFixed(1)} km (ETA: {m.eta_minutes.toFixed(0)}m)</span>
+                          <div className="text-[11px] text-[#475569] capitalize mt-0.5 flex flex-wrap items-center gap-1.5">
+                            <span>{m.quantity_kg} kg {m.food_category.replace('_', ' ')}</span>
+                            <span>•</span>
+                            <span className="text-[#0F172A] font-mono font-semibold">{m.distance_km.toFixed(1)} km (ETA: {m.eta_minutes.toFixed(0)}m)</span>
+                            {m.routing_mode && m.routing_mode.includes('OpenRouteService') && (
+                              <span className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                🛣️ OpenRouteService Live
+                              </span>
+                            )}
                           </div>
                         </div>
 

@@ -13,6 +13,9 @@ Hard constraints (infeasibility → score = -∞):
 """
 
 import math
+import os
+import json
+import urllib.request
 import numpy as np
 from scipy.optimize import linear_sum_assignment
 from typing import Optional
@@ -29,6 +32,52 @@ MAX_RANGE_KM = 50.0
 AVG_SPEED_KMH = 30.0
 LOADING_TIME_MIN = 10.0
 BUFFER_MIN = 15.0
+
+# ── Route Cache & OpenRouteService Integration ────────────────────────────
+_route_cache: dict[str, dict] = {}
+
+
+def fetch_road_route(lat1: float, lon1: float, lat2: float, lon2: float) -> Optional[dict]:
+    """
+    Query OpenRouteService directions API for real road driving metrics and geometry.
+    Cached in memory to prevent duplicate external calls and ensure sub-second response.
+    Returns:
+        {"distance_km": float, "eta_minutes": float, "geometry": list[[lat, lng]], "mode": "OpenRouteService Live Traffic"}
+        or None on error / if API key is not configured.
+    """
+    key = os.getenv("OPENROUTESERVICE_API_KEY", "")
+    if not key:
+        return None
+
+    cache_key = f"{lat1:.4f},{lon1:.4f}->{lat2:.4f},{lon2:.4f}"
+    if cache_key in _route_cache:
+        return _route_cache[cache_key]
+
+    try:
+        url = f"https://api.openrouteservice.org/v2/directions/driving-car?start={lon1:.6f},{lat1:.6f}&end={lon2:.6f},{lat2:.6f}"
+        req = urllib.request.Request(
+            url,
+            headers={
+                "Authorization": key,
+                "Accept": "application/json, application/geo+json"
+            }
+        )
+        with urllib.request.urlopen(req, timeout=3.0) as resp:
+            data = json.loads(resp.read().decode())
+            feature = data["features"][0]
+            summary = feature["properties"]["summary"]
+            raw_coords = feature["geometry"]["coordinates"]
+            leaflet_coords = [[p[1], p[0]] for p in raw_coords]
+            res = {
+                "distance_km": round(summary["distance"] / 1000.0, 2),
+                "eta_minutes": round(summary["duration"] / 60.0 + LOADING_TIME_MIN, 1),
+                "geometry": leaflet_coords,
+                "mode": "OpenRouteService Live Traffic",
+            }
+            _route_cache[cache_key] = res
+            return res
+    except Exception:
+        return None
 
 # ── Helpers ───────────────────────────────────────────────────────────────
 
@@ -186,6 +235,7 @@ def build_cost_matrix(
 def solve_optimal_matching(
     donations: list[dict],
     ngos: list[dict],
+    fetch_road_routes: bool = False,
 ) -> list[dict]:
     """
     Solve the optimal donation → NGO assignment using the Hungarian algorithm.
@@ -204,6 +254,21 @@ def solve_optimal_matching(
     for r, c in zip(row_ind, col_ind):
         if cost[r][c] < 1e9:
             sc = details[r][c]
+            don_lat = donations[r].get("latitude")
+            don_lng = donations[r].get("longitude")
+            ngo_lat = ngos[c].get("latitude")
+            ngo_lng = ngos[c].get("longitude")
+
+            road_route = fetch_road_route(don_lat, don_lng, ngo_lat, ngo_lng) if (fetch_road_routes and don_lat and ngo_lat) else None
+            if road_route:
+                sc["distance_km"] = road_route["distance_km"]
+                sc["eta_minutes"] = road_route["eta_minutes"]
+                route_geometry = road_route["geometry"]
+                routing_mode = road_route["mode"]
+            else:
+                route_geometry = [[don_lat, don_lng], [ngo_lat, ngo_lng]] if don_lat and ngo_lat else []
+                routing_mode = "Haversine Heuristic"
+
             results.append({
                 "donation_id": donations[r].get("id"),
                 "ngo_id": ngos[c].get("id"),
@@ -213,6 +278,8 @@ def solve_optimal_matching(
                 "quantity_kg": donations[r].get("quantity_kg", 0),
                 "tier": 1,
                 "tier_name": "Human Relief",
+                "route_geometry": route_geometry,
+                "routing_mode": routing_mode,
                 **sc,
             })
             matched_donation_ids.add(donations[r].get("id"))
@@ -288,6 +355,19 @@ def match_single_donation(
     if best is not None:
         best["tier"] = 1
         best["tier_name"] = "Human Relief"
+        don_lat = donation.get("latitude")
+        don_lng = donation.get("longitude")
+        ngo_match = next((n for n in ngos if n.get("id") == best.get("ngo_id")), None)
+        if ngo_match and don_lat and ngo_match.get("latitude"):
+            road_route = fetch_road_route(don_lat, don_lng, ngo_match["latitude"], ngo_match["longitude"])
+            if road_route:
+                best["distance_km"] = road_route["distance_km"]
+                best["eta_minutes"] = road_route["eta_minutes"]
+                best["route_geometry"] = road_route["geometry"]
+                best["routing_mode"] = road_route["mode"]
+            else:
+                best["route_geometry"] = [[don_lat, don_lng], [ngo_match["latitude"], ngo_match["longitude"]]]
+                best["routing_mode"] = "Haversine Heuristic"
         return best
 
     # Tier-2 Fallback if no human shelter is feasible in time

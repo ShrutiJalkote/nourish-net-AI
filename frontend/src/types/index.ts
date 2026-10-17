@@ -64,6 +64,8 @@ export interface MatchResult {
   tier?: number;
   tier_name?: string;
   shap_explanation?: ShapExplanation;
+  route_geometry?: [number, number][];
+  routing_mode?: string;
 }
 
 export interface AuditRecord {

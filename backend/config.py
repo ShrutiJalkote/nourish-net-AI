@@ -27,6 +27,7 @@ DATABASE_PATH = os.getenv("DATABASE_PATH", "./data/nourishnet.db")
 MAX_DELIVERY_RANGE_KM = float(os.getenv("MAX_DELIVERY_RANGE_KM", "50"))
 AVG_SPEED_KMH = 30.0          # Average city delivery speed
 LOADING_TIME_MIN = 10.0        # Time to load food at pickup
+OPENROUTESERVICE_API_KEY = os.getenv("OPENROUTESERVICE_API_KEY", "")
 
 # ── Spoilage Engine Parameters ────────────────────────────────────────────
 # Modified Arrhenius model:  t_safe = t0 * exp(-k * (T-T_base)/10) * α * β

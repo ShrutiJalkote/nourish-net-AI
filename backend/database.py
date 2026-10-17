@@ -106,9 +106,18 @@ def init_db(db_path: Optional[str] = None) -> None:
                 status TEXT DEFAULT 'matched',
                 tier INTEGER DEFAULT 1,
                 tier_name TEXT DEFAULT 'Human Relief',
-                shap_explanation TEXT
+                shap_explanation TEXT,
+                route_geometry TEXT,
+                routing_mode TEXT
             )
         """)
+
+        # Ensure schema backward-compatibility for existing databases
+        for col_def in ["route_geometry TEXT", "routing_mode TEXT"]:
+            try:
+                _conn.execute(f"ALTER TABLE matches ADD COLUMN {col_def};")
+            except Exception:
+                pass
 
         # 4. Audit Trail Table (Immutable Hash Chain)
         _conn.execute("""
@@ -320,6 +329,15 @@ def _row_to_match(row: sqlite3.Row) -> dict:
         except Exception:
             shap_dict = None
 
+    geom_str = row["route_geometry"] if "route_geometry" in row.keys() else None
+    geom_list = None
+    if geom_str:
+        try:
+            geom_list = json.loads(geom_str)
+        except Exception:
+            geom_list = None
+    routing_mode = row["routing_mode"] if "routing_mode" in row.keys() and row["routing_mode"] else "Haversine Heuristic"
+
     return {
         "id": row["id"],
         "donation_id": row["donation_id"],
@@ -341,12 +359,16 @@ def _row_to_match(row: sqlite3.Row) -> dict:
         "tier": row["tier"],
         "tier_name": row["tier_name"],
         "shap_explanation": shap_dict,
+        "route_geometry": geom_list,
+        "routing_mode": routing_mode,
     }
 
 
 def add_match(data: dict) -> dict:
     matched_at = data.get("matched_at", datetime.now(timezone.utc).isoformat())
     shap_str = json.dumps(data.get("shap_explanation")) if data.get("shap_explanation") else None
+    geom_str = json.dumps(data.get("route_geometry")) if data.get("route_geometry") else None
+    routing_mode = data.get("routing_mode", "Haversine Heuristic")
 
     with _lock:
         cursor = _conn.execute(
@@ -354,8 +376,9 @@ def add_match(data: dict) -> dict:
                 donation_id, ngo_id, donor_name, ngo_name, food_category, quantity_kg,
                 composite_score, urgency_score, capacity_fit_score, need_score,
                 proximity_score, dietary_match_score, distance_km, eta_minutes,
-                matched_at, status, tier, tier_name, shap_explanation
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                matched_at, status, tier, tier_name, shap_explanation,
+                route_geometry, routing_mode
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
             (
                 data["donation_id"],
                 data["ngo_id"],
@@ -376,6 +399,8 @@ def add_match(data: dict) -> dict:
                 int(data.get("tier", 1)),
                 data.get("tier_name", "Human Relief"),
                 shap_str,
+                geom_str,
+                routing_mode,
             ),
         )
         _conn.commit()
@@ -405,7 +430,7 @@ def update_match(match_id: int, updates: dict) -> Optional[dict]:
     fields = []
     values = []
     for k, v in updates.items():
-        if k == "shap_explanation" and isinstance(v, dict):
+        if k in ("shap_explanation", "route_geometry") and isinstance(v, (dict, list)):
             v = json.dumps(v)
         fields.append(f"{k} = ?")
         values.append(v)

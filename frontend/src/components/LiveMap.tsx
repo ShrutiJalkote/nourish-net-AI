@@ -56,13 +56,21 @@ export const LiveMap: React.FC<LiveMapProps> = ({ donations, ngos, matches }) =>
       const don = donations.find((d) => d.id === match.donation_id);
       const ngo = ngos.find((n) => n.id === match.ngo_id);
       if (don && ngo && don.latitude && don.longitude && ngo.latitude && ngo.longitude) {
+        // If real street geometry is returned by OpenRouteService, render actual road curves!
+        const isRoadRoute = Boolean(match.route_geometry && match.route_geometry.length > 2);
+        const coords: [number, number][] = isRoadRoute
+          ? (match.route_geometry as [number, number][])
+          : [
+              [don.latitude, don.longitude],
+              [ngo.latitude, ngo.longitude],
+            ];
+
         return {
-          coords: [
-            [don.latitude, don.longitude],
-            [ngo.latitude, ngo.longitude],
-          ] as [[number, number], [number, number]],
+          coords,
           label: `${don.donor_name} → ${ngo.name}`,
           tier: match.tier || 1,
+          isRoadRoute,
+          mode: match.routing_mode || 'Haversine Heuristic',
         };
       }
       return null;
@@ -78,8 +86,9 @@ export const LiveMap: React.FC<LiveMapProps> = ({ donations, ngos, matches }) =>
         style={{ height: '100%', width: '100%', background: '#F8FAFC' }}
       >
         <TileLayer
-          attribution='&copy; <a href="https://carto.com/">CARTO</a>'
-          url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          maxZoom={19}
         />
 
         {/* Polylines for Matches */}
@@ -89,8 +98,8 @@ export const LiveMap: React.FC<LiveMapProps> = ({ donations, ngos, matches }) =>
             positions={route!.coords}
             pathOptions={{
               color: route!.tier === 1 ? '#4F46E5' : '#D97706',
-              weight: 4,
-              dashArray: '8, 8',
+              weight: route!.isRoadRoute ? 5 : 4,
+              dashArray: route!.isRoadRoute ? undefined : '8, 8',
               opacity: 0.95,
             }}
           />
@@ -170,8 +179,12 @@ export const LiveMap: React.FC<LiveMapProps> = ({ donations, ngos, matches }) =>
           <span className="text-[11px] font-medium text-indigo-700">Recipient NGO / Shelter</span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="w-4 h-1 border-t-2 border-dashed border-indigo-600"></span>
-          <span className="text-[11px] font-medium">Optimized AI Route</span>
+          <span className="w-4 h-1 bg-indigo-600 rounded"></span>
+          <span className="text-[11px] font-medium text-indigo-700">Live Street Route (OpenRouteService)</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="w-4 h-1 border-t-2 border-dashed border-amber-600"></span>
+          <span className="text-[11px] font-medium text-amber-700">Tier 2 Upcycling Flow</span>
         </div>
       </div>
     </div>
