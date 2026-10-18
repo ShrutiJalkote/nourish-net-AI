@@ -115,14 +115,15 @@ SHA-256 chained receipts create a blockchain-like immutable record of every food
 ## 🛠️ Tech Stack
 
 | Layer | Technology |
-|:---|:---|
+|---|---|
 | Backend | FastAPI + Uvicorn |
-| Frontend | Streamlit (multi-page) |
+| Frontend | React 18 + Vite |
+| Styling | Tailwind CSS |
 | AI/ML | Scikit-Learn, SciPy, SHAP |
-| Maps | Folium + Leaflet.js |
-| Charts | Plotly Express |
-| Database | SQLite + In-Memory |
-| Crypto | hashlib SHA-256 |
+| Maps | Leaflet.js |
+| Charts | Plotly |
+| Database | SQLite |
+| Crypto | Python hashlib (SHA-256) |
 | Deployment | IBM LinuxONE (s390x) |
 
 ---
@@ -141,20 +142,25 @@ SHA-256 chained receipts create a blockchain-like immutable record of every food
 NourishNet-AI/
 ├── backend/
 │   ├── main.py              # FastAPI application
-│   ├── config.py             # Configuration
-│   ├── database.py           # Data layer
-│   ├── models/               # 4 AI engines
+│   ├── config.py            # Configuration
+│   ├── database.py          # Data layer
+│   ├── models/              # AI/ML engines
 │   │   ├── spoilage_engine.py
 │   │   ├── matcher_engine.py
 │   │   ├── explainer_engine.py
 │   │   └── crypto_audit.py
-│   ├── schemas/              # Pydantic models
-│   └── data/                 # Seed data
-├── dashboard/
-│   ├── app.py                # Streamlit entry
-│   ├── pages/                # 6 dashboard pages
-│   └── assets/               # CSS, images
-├── tests/                    # Unit tests
+│   ├── schemas/             # Pydantic models
+│   └── data/                # Seed data
+├── frontend/
+│   ├── src/                 # React source code
+│   ├── public/              # Static assets
+│   ├── dist/                # Production build
+│   ├── package.json         # Frontend dependencies
+│   └── vite.config.js       # Vite configuration
+├── dashboard/               # Legacy/optional Streamlit dashboard
+│   ├── app.py
+│   ├── pages/
+│   └── assets/
 ├── requirements.txt
 ├── deploy_linuxone.sh
 └── README.md
@@ -166,10 +172,10 @@ NourishNet-AI/
 
 | Role | Member |
 |:---|:---|
-| Project Lead & AI Engineer | Team Member 1 |
-| Backend Developer | Team Member 2 |
-| Frontend & Visualization | Team Member 3 |
-| Data & Deployment | Team Member 4 |
+| Project Lead & AI Engineer | Tanya Garg |
+| Backend Developer | Varun Junja |
+| Frontend & Visualization | Shruti Jalkote |
+| Data & Deployment | Muskan Kumari |
 
 ---
 
